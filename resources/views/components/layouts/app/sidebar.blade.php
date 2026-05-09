@@ -21,6 +21,8 @@
                     :current="request()->routeIs(auth()->user()->role =='teacher' ? 'teacher.dashboard' : 'admin.dashboard')"
                     wire:navigate>Dashboard</flux:navlist.item>
             </flux:navlist.group>
+            <flux:navlist.item icon="users" :href="route('student.index')"
+                :current="request()->routeIs('student.index')" wire:navigate>Student Management</flux:navlist.item>
         </flux:navlist>
 
         <flux:spacer />
@@ -127,6 +129,7 @@
     {{ $slot }}
 
     @fluxScripts
+    <x-toaster-hub />
 </body>
 
 </html>

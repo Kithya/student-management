@@ -1,6 +1,9 @@
 <?php
 
 use App\Livewire\Admin\AdminDashboard;
+use App\Livewire\Teacher\Students\AddStudent;
+use App\Livewire\Teacher\Students\EditStudent;
+use App\Livewire\Teacher\Students\StudentList;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -12,9 +15,16 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified', 'teacher'])
     ->name('teacher.dashboard');
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/student-list', StudentList::class)->name('student.index');
+    Route::get('/create/student', AddStudent::class)->name('student.create');
+    Route::get('/edit/student/{id}', EditStudent::class)->name('student.edit');
+});
+
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/dashboard', AdminDashboard::class)->name('admin.dashboard');
 });
+
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
@@ -23,4 +33,4 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
