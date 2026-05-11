@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Admin\AdminDashboard;
+use App\Livewire\Teacher\Attendance\AttendancePage;
 use App\Livewire\Teacher\Grades\AddGrade;
 use App\Livewire\Teacher\Grades\EditGrade;
 use App\Livewire\Teacher\Grades\GradeList;
@@ -28,6 +29,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/grade/list', GradeList::class)->name('grade.index');
     Route::get('/grade/create', AddGrade::class)->name('grade.create');
     Route::get('/grade/edit/{id}', EditGrade::class)->name('grade.edit');
+
+    // Attendance
+    Route::get('/attendance', AttendancePage::class)->name('attendance.index');
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
@@ -42,4 +46,4 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';

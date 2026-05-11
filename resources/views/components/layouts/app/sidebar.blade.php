@@ -24,9 +24,14 @@
             {{-- Student Management --}}
             <flux:navlist.item icon="users" :href="route('student.index')"
                 :current="request()->routeIs('student.index')" wire:navigate>Student Management</flux:navlist.item>
+
             {{-- Grade Management --}}
             <flux:navlist.item icon="document-text" :href="route('grade.index')"
                 :current="request()->routeIs('grade.index')" wire:navigate>Grade</flux:navlist.item>
+
+            {{-- Attendance Management --}}
+            <flux:navlist.item icon="calendar" :href="route('attendance.index')"
+                :current="request()->routeIs('attendance.index')" wire:navigate>Attendance</flux:navlist.item>
         </flux:navlist>
 
         <flux:spacer />
