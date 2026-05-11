@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Teacher\Attendance\AttendancePage;
+use App\Models\Attendance;
 use App\Models\Grade;
 use App\Models\Student;
 use Livewire\Livewire;
@@ -43,6 +44,29 @@ test('attendance table shows a status select for each student day', function () 
         ->assertSet("attendance.{$student->id}.1", 'present')
         ->assertSeeHtml('wire:change="markAll(1, $event.target.value)"')
         ->assertSeeHtml('aria-label="Mark all attendance for day 1"')
-        ->assertSeeHtml('wire:model.change="updateAttendace()"')
+        ->assertSeeHtml("wire:change=\"updateAttendance({$student->id}, 1, \$event.target.value)\"")
         ->assertSeeHtml('aria-label="Attendance for Ada Lovelace on day 1"');
+});
+
+test('attendance status can be updated', function () {
+    $grade = Grade::create(['name' => 'Grade 1']);
+    $student = Student::create([
+        'first_name' => 'Ada',
+        'last_name' => 'Lovelace',
+        'age' => 12,
+        'grade_id' => $grade->id,
+    ]);
+
+    Livewire::test(AttendancePage::class)
+        ->set('year', 2026)
+        ->set('month', 2)
+        ->set('grade', $grade->id)
+        ->call('fetchStudents')
+        ->call('updateAttendance', $student->id, 1, 'absent')
+        ->assertSet("attendance.{$student->id}.1", 'absent');
+
+    expect(Attendance::query()
+        ->where('student_id', $student->id)
+        ->whereDate('date', '2026-02-01')
+        ->value('status'))->toBe('absent');
 });

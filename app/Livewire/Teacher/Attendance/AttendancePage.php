@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Masmerise\Toaster\Toaster;
 
 #[Layout('components.layouts.app')]
 class AttendancePage extends Component
@@ -46,8 +47,46 @@ class AttendancePage extends Component
         }
     }
 
+
+    public function updateAttendance(int $studentId, int $day, string $status): void
+    {
+        // if (! $this->isValidStatus($status)) {
+        //     return;
+        // }
+
+        $date = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
+
+        Attendance::updateOrCreate([
+            'student_id' => $studentId,
+            'date' => $date,
+        ], [
+            'status' => $status,
+            'grade_id' => $this->grade,
+        ]);
+
+        // sync the value of status
+        $this->attendance[$studentId][$day] = $status;
+
+        Toaster::success('Attendance updated successfully.');
+    }
+
+    public function markAll($day, $status)
+    {
+        foreach ($this->students as $student) {
+            $this->updateAttendance($student->id, $day, $status);
+        }
+    }
+
+
+
+    // private function isValidStatus(string $status): bool
+    // {
+    //     return in_array($status, ['present', 'absent', 'sick', 'other'], true);
+    // }
+
     public function render(): View
     {
+        $this->fetchStudents();
         return view('livewire.teacher.attendance.attendance-page', [
             'daysInMonth' => $this->year && $this->month
                 ? Carbon::create((int) $this->year, (int) $this->month)->daysInMonth

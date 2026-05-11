@@ -10,7 +10,7 @@ class Attendance extends Model
     //
     protected $fillable = [
         'student_id',
-        'subject_id',
+        'grade_id',
         'date',
         'status',
         'reason',

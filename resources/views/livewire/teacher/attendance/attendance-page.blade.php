@@ -75,7 +75,7 @@
                                                         {{ $day }}
                                                     </span>
 
-                                                    <select wire:change="markAll()"
+                                                    <select wire:change="markAll({{ $day }}, $event.target.value)"
                                                         aria-label="Mark all attendance for day {{ $day }}"
                                                         class="block h-8 w-full min-w-28 rounded-lg border border-layer-line bg-layer px-2 pe-7 text-xs font-medium text-muted-foreground-2 shadow-2xs transition hover:border-primary-focus/60 focus:border-primary-focus focus:outline-hidden focus:ring-2 focus:ring-primary-focus/25 disabled:pointer-events-none disabled:opacity-50">
                                                         <option value="">All</option>
@@ -106,13 +106,22 @@
                                             @foreach (range(1, $daysInMonth) as $day)
                                                 <td
                                                     class="h-px min-w-32 border-s border-table-line bg-layer px-2 py-2 group-hover:bg-muted/40">
-                                                    <select wire:model.change="updateAttendace()"
+                                                    <select
+                                                        wire:change="updateAttendance({{ $student->id }}, {{ $day }}, $event.target.value)"
                                                         aria-label="Attendance for {{ $student->first_name }} {{ $student->last_name }} on day {{ $day }}"
                                                         class="block h-9 w-full min-w-28 rounded-lg border border-layer-line bg-layer px-2.5 pe-8 text-xs font-medium text-foreground shadow-2xs transition hover:border-primary-focus/60 focus:border-primary-focus focus:outline-hidden focus:ring-2 focus:ring-primary-focus/25 disabled:pointer-events-none disabled:opacity-50">
-                                                        <option value="present">Present</option>
-                                                        <option value="absent">Absent</option>
-                                                        <option value="sick">Sick</option>
-                                                        <option value="other">Other</option>
+                                                        <option value="present"
+                                                            {{ $attendance[$student->id][$day] == 'present' ? 'selected' : ' ' }}>
+                                                            Present</option>
+                                                        <option value="absent"
+                                                            {{ $attendance[$student->id][$day] == 'absent' ? 'selected' : ' ' }}>
+                                                            Absent</option>
+                                                        <option value="sick"
+                                                            {{ $attendance[$student->id][$day] == 'sick' ? 'selected' : ' ' }}>
+                                                            Sick</option>
+                                                        <option value="other"
+                                                            {{ $attendance[$student->id][$day] == 'other' ? 'selected' : ' ' }}>
+                                                            Other</option>
                                                     </select>
                                                 </td>
                                             @endforeach
