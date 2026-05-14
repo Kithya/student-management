@@ -22,7 +22,7 @@
                                 <div class="inline-flex gap-x-2">
 
                                     <a class="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg bg-primary border border-primary-line text-primary-foreground hover:bg-primary-hover focus:outline-hidden focus:bg-primary-focus disabled:opacity-50 disabled:pointer-events-none"
-                                        href="/create/student" wire:navigate>
+                                        href="{{ route('student.create') }}" wire:navigate>
                                         <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24"
                                             height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -94,7 +94,7 @@
                                         </td>
                                         <td class="h-px w-auto whitespace-nowrap">
                                             <div class="flex items-center gap-2 px-6 py-2">
-                                                <a href="/edit/student/{{ $student->id }}" aria-label="Edit student"
+                                                <a href="{{ route('student.edit', $student->id) }}" aria-label="Edit student"
                                                     title="Edit student"
                                                     class="group inline-flex size-9 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-700 shadow-2xs transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-100 hover:text-blue-800 hover:shadow-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500/30 disabled:pointer-events-none disabled:opacity-50 dark:border-blue-400/30 dark:bg-blue-400/10 dark:text-blue-300 dark:hover:bg-blue-400/20">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -131,7 +131,7 @@
                             class="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-t border-table-line">
                             <div>
                                 <p class="text-sm text-muted-foreground-2">
-                                    <span class="font-semibold text-foreground">9</span> results
+                                    <span class="font-semibold text-foreground">{{ $students->count() }}</span> results
                                 </p>
                             </div>
 

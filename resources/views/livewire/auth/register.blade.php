@@ -10,7 +10,7 @@ use Livewire\Volt\Component;
 
 new #[Layout('components.layouts.auth')] class extends Component {
     public string $name = '';
-    public string $email = '';
+    public string $username = '';
     public string $password = '';
     public string $password_confirmation = '';
 
@@ -21,7 +21,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     {
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'username' => ['required', 'string', 'lowercase', 'alpha_dash', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -47,9 +47,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <flux:input wire:model="name" id="name" label="{{ __('Name') }}" type="text" name="name" required autofocus autocomplete="name" placeholder="Full name" />
         </div>
 
-        <!-- Email Address -->
         <div class="grid gap-2">
-            <flux:input wire:model="email" id="email" label="{{ __('Email address') }}" type="email" name="email" required autocomplete="email" placeholder="email@example.com" />
+            <flux:input wire:model="username" id="username" label="{{ __('Username') }}" type="text" name="username" required autocomplete="username" placeholder="username" />
         </div>
 
         <!-- Password -->

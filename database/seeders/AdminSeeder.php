@@ -3,9 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
@@ -14,11 +12,28 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
+        User::query()->firstOrCreate([
+            'username' => 'admin',
+        ], [
             'name' => 'Admin',
-            'email' => 'admin@gmail.com',
             'role' => 'admin',
-            'password' => Hash::make('password')
+            'password' => 'password',
+        ]);
+
+        User::query()->firstOrCreate([
+            'username' => 'ms-sokha',
+        ], [
+            'name' => 'Sokha Teacher',
+            'role' => 'teacher',
+            'password' => 'password',
+        ]);
+
+        User::query()->firstOrCreate([
+            'username' => 'mr-dara',
+        ], [
+            'name' => 'Dara Teacher',
+            'role' => 'teacher',
+            'password' => 'password',
         ]);
     }
 }

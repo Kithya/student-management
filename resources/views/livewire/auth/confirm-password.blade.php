@@ -18,7 +18,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
         ]);
 
         if (! Auth::guard('web')->validate([
-            'email' => Auth::user()->email,
+            'username' => Auth::user()->username,
             'password' => $this->password,
         ])) {
             throw ValidationException::withMessages([
@@ -28,7 +28,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         session(['auth.password_confirmed_at' => time()]);
 
-        $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        $route = Auth::user()?->role === 'admin' ? 'admin.dashboard' : 'dashboard';
+
+        $this->redirectIntended(default: route($route, absolute: false), navigate: true);
     }
 }; ?>
 

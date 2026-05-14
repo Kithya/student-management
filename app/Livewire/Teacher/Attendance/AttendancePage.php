@@ -28,34 +28,113 @@ class AttendancePage extends Component
 
     public $grades = [];
 
+    public bool $hasSearched = false;
+
     public function mount(): void
     {
-        $this->grades = Grade::all();
+        $this->grades = Grade::query()
+            ->orderBy('name')
+            ->get();
     }
 
     public function fetchStudents(): void
     {
-        if ($this->year && $this->month && $this->grade) {
-            $this->students = Student::where('grade_id', $this->grade)->get();
+        $this->validate([
+            'year' => ['required', 'integer'],
+            'month' => ['required', 'integer', 'between:1,12'],
+            'grade' => ['required', 'exists:grades,id'],
+        ]);
 
-            foreach ($this->students as $student) {
-                foreach (range(1, Carbon::create($this->year, $this->month)->daysInMonth) as $day) {
-                    $date = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
-                    $this->attendance[$student->id][$day] = Attendance::where('student_id', $student->id)
-                        ->whereDate('date', $date)
-                        ->value('status') ?? 'present';
-                }
+        $this->hasSearched = true;
+        $this->attendance = [];
+
+        $this->students = Student::query()
+            ->where('grade_id', $this->grade)
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get();
+
+        if ($this->students->isEmpty()) {
+            return;
+        }
+
+        $startDate = Carbon::create((int) $this->year, (int) $this->month, 1)->startOfDay();
+        $endDate = $startDate->copy()->endOfMonth();
+        $daysInMonth = $startDate->daysInMonth;
+
+        $attendanceRecords = Attendance::query()
+            ->whereIn('student_id', $this->students->pluck('id'))
+            ->whereBetween('date', [$startDate->toDateString(), $endDate->toDateString()])
+            ->get()
+            ->keyBy(fn (Attendance $attendance): string => $attendance->student_id.'-'.Carbon::parse($attendance->date)->day);
+
+        foreach ($this->students as $student) {
+            foreach (range(1, $daysInMonth) as $day) {
+                $this->attendance[$student->id][$day] = $attendanceRecords->get($student->id.'-'.$day)?->status ?? 'present';
             }
         }
     }
 
     public function updateAttendance(int $studentId, int $day, string $status): void
     {
-        // if (! $this->isValidStatus($status)) {
-        //     return;
-        // }
+        if (! $this->isReady() || ! $this->isValidStatus($status)) {
+            return;
+        }
 
-        $date = Carbon::create($this->year, $this->month, $day)->format('Y-m-d');
+        $this->persistAttendance($studentId, $day, $status);
+        $this->attendance[$studentId][$day] = $status;
+
+        Toaster::success('Attendance updated successfully.');
+    }
+
+    public function markAll(int $day, string $status): void
+    {
+        if (! $this->isReady() || ! $this->isValidStatus($status)) {
+            return;
+        }
+
+        foreach ($this->students as $student) {
+            $this->persistAttendance($student->id, $day, $status);
+            $this->attendance[$student->id][$day] = $status;
+        }
+
+        Toaster::success('Attendance updated successfully.');
+    }
+
+    public function exportToExcel()
+    {
+        if (! $this->isReady()) {
+            $this->addError('filters', 'Select a year, month, and grade before exporting.');
+            Toaster::error('Select a year, month, and grade before exporting.');
+
+            return null;
+        }
+
+        return Excel::download(new AttendanceExport($this->year, $this->month, $this->grade), 'attendance.xlsx');
+    }
+
+    public function updated(string $property): void
+    {
+        if (in_array($property, ['year', 'month', 'grade'], true)) {
+            $this->students = [];
+            $this->attendance = [];
+            $this->hasSearched = false;
+        }
+    }
+
+    public function render(): View
+    {
+        return view('livewire.teacher.attendance.attendance-page', [
+            'daysInMonth' => $this->hasSearched && $this->year && $this->month
+                ? Carbon::create((int) $this->year, (int) $this->month)->daysInMonth
+                : null,
+            'canExport' => $this->isReady(),
+        ]);
+    }
+
+    private function persistAttendance(int $studentId, int $day, string $status): void
+    {
+        $date = Carbon::create((int) $this->year, (int) $this->month, $day)->format('Y-m-d');
 
         Attendance::updateOrCreate([
             'student_id' => $studentId,
@@ -64,33 +143,15 @@ class AttendancePage extends Component
             'status' => $status,
             'grade_id' => $this->grade,
         ]);
-
-        // sync the value of status
-        $this->attendance[$studentId][$day] = $status;
-
-        Toaster::success('Attendance updated successfully.');
     }
 
-    public function markAll($day, $status)
+    private function isReady(): bool
     {
-        foreach ($this->students as $student) {
-            $this->updateAttendance($student->id, $day, $status);
-        }
+        return filled($this->year) && filled($this->month) && filled($this->grade);
     }
 
-    public function exportToExcel()
+    private function isValidStatus(string $status): bool
     {
-        return Excel::download(new AttendanceExport($this->year, $this->month, $this->grade), 'attendance.xlsx');
-    }
-
-    public function render(): View
-    {
-        $this->fetchStudents();
-
-        return view('livewire.teacher.attendance.attendance-page', [
-            'daysInMonth' => $this->year && $this->month
-                ? Carbon::create((int) $this->year, (int) $this->month)->daysInMonth
-                : null,
-        ]);
+        return in_array($status, ['present', 'absent', 'sick', 'other'], true);
     }
 }

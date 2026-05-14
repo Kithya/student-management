@@ -1,3 +1,8 @@
+@php
+    $user = auth()->user();
+    $dashboardRoute = $user?->role === 'admin' ? 'admin.dashboard' : 'dashboard';
+@endphp
+
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
 
@@ -9,50 +14,44 @@
     <flux:sidebar sticky stashable class="border-r border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
         <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-        <a href="{{ route(auth()->user()->role == 'teacher' ? 'teacher.dashboard' : 'admin.dashboard') }}"
-            class="mr-5 flex items-center space-x-2" wire:navigate>
+        <a href="{{ route($dashboardRoute) }}" class="mr-5 flex items-center space-x-2" wire:navigate>
             <x-app-logo class="size-8" href="#"></x-app-logo>
         </a>
 
         <flux:navlist variant="outline">
             <flux:navlist.group heading="Platform" class="grid">
-                <flux:navlist.item icon="home"
-                    :href="route(auth()->user()->role =='teacher' ? 'teacher.dashboard' : 'admin.dashboard')"
-                    :current="request()->routeIs(auth()->user()->role =='teacher' ? 'teacher.dashboard' : 'admin.dashboard')"
-                    wire:navigate>Dashboard</flux:navlist.item>
+                <flux:navlist.item icon="home" :href="route($dashboardRoute)" :current="request()->routeIs($dashboardRoute)" wire:navigate>
+                    Dashboard
+                </flux:navlist.item>
+
+                @if ($user?->role === 'admin')
+                    <flux:navlist.item icon="users" :href="route('student.index')" :current="request()->routeIs('student.*')" wire:navigate>
+                        Students
+                    </flux:navlist.item>
+
+                    <flux:navlist.item icon="document-text" :href="route('grade.index')" :current="request()->routeIs('grade.*')" wire:navigate>
+                        Grades
+                    </flux:navlist.item>
+
+                    <flux:navlist.item icon="document-text" :href="route('course.index')" :current="request()->routeIs('course.*')" wire:navigate>
+                        Courses
+                    </flux:navlist.item>
+
+                    <flux:navlist.item icon="users" :href="route('staff.index')" :current="request()->routeIs('staff.*')" wire:navigate>
+                        Staff
+                    </flux:navlist.item>
+                @endif
+
+                <flux:navlist.item icon="calendar" :href="route('attendance.index')" :current="request()->routeIs('attendance.*')" wire:navigate>
+                    Attendance
+                </flux:navlist.item>
             </flux:navlist.group>
-            @if (auth()->user()->role == 'admin')
-                {{-- Student Management --}}
-                <flux:navlist.item icon="users" :href="route('student.index')"
-                    :current="request()->routeIs('student.index')" wire:navigate>Student Management</flux:navlist.item>
-
-                {{-- Grade Management --}}
-                <flux:navlist.item icon="document-text" :href="route('grade.index')"
-                    :current="request()->routeIs('grade.index')" wire:navigate>Grade</flux:navlist.item>
-            @endif
-
-            {{-- Attendance Management --}}
-            <flux:navlist.item icon="calendar" :href="route('attendance.index')"
-                :current="request()->routeIs('attendance.index')" wire:navigate>Attendance</flux:navlist.item>
         </flux:navlist>
 
         <flux:spacer />
 
-        <flux:navlist variant="outline">
-            <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit"
-                target="_blank">
-                Repository
-            </flux:navlist.item>
-
-            <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">
-                Documentation
-            </flux:navlist.item>
-        </flux:navlist>
-
-        <!-- Desktop User Menu -->
         <flux:dropdown position="bottom" align="start">
-            <flux:profile :name="auth()->user()->name" :initials="auth()->user()->initials()"
-                icon-trailing="chevrons-up-down" />
+            <flux:profile :name="$user?->name" :initials="$user?->initials()" icon-trailing="chevrons-up-down" />
 
             <flux:menu class="w-[220px]">
                 <flux:menu.radio.group>
@@ -61,13 +60,13 @@
                             <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
                                 <span
                                     class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                    {{ auth()->user()->initials() }}
+                                    {{ $user?->initials() }}
                                 </span>
                             </span>
 
                             <div class="grid flex-1 text-left text-sm leading-tight">
-                                <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                                <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                <span class="truncate font-semibold">{{ $user?->name }}</span>
+                                <span class="truncate text-xs">{{ $user?->username }}</span>
                             </div>
                         </div>
                     </div>
@@ -76,7 +75,7 @@
                 <flux:menu.separator />
 
                 <flux:menu.radio.group>
-                    <flux:menu.item href="/settings/profile" icon="cog" wire:navigate>Settings</flux:menu.item>
+                    <flux:menu.item href="{{ route('settings.profile') }}" icon="cog" wire:navigate>Settings</flux:menu.item>
                 </flux:menu.radio.group>
 
                 <flux:menu.separator />
@@ -91,14 +90,13 @@
         </flux:dropdown>
     </flux:sidebar>
 
-    <!-- Mobile User Menu -->
     <flux:header class="lg:hidden">
         <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
 
         <flux:spacer />
 
         <flux:dropdown position="top" align="end">
-            <flux:profile :initials="auth()->user()->initials()" icon-trailing="chevron-down" />
+            <flux:profile :initials="$user?->initials()" icon-trailing="chevron-down" />
 
             <flux:menu>
                 <flux:menu.radio.group>
@@ -107,13 +105,13 @@
                             <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
                                 <span
                                     class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
-                                    {{ auth()->user()->initials() }}
+                                    {{ $user?->initials() }}
                                 </span>
                             </span>
 
                             <div class="grid flex-1 text-left text-sm leading-tight">
-                                <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                                <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                <span class="truncate font-semibold">{{ $user?->name }}</span>
+                                <span class="truncate text-xs">{{ $user?->username }}</span>
                             </div>
                         </div>
                     </div>
@@ -122,7 +120,7 @@
                 <flux:menu.separator />
 
                 <flux:menu.radio.group>
-                    <flux:menu.item href="/settings/profile" icon="cog" wire:navigate>Settings</flux:menu.item>
+                    <flux:menu.item href="{{ route('settings.profile') }}" icon="cog" wire:navigate>Settings</flux:menu.item>
                 </flux:menu.radio.group>
 
                 <flux:menu.separator />

@@ -8,17 +8,15 @@ use Illuminate\View\Component;
 
 class StatsCard extends Component
 {
-    public $title, $value, $percentage, $tooltip;
     /**
      * Create a new component instance.
      */
-    public function __construct($title, $value, $percentage, $tooltip)
-    {
-        $this->title = $title;
-        $this->value = $value;
-        $this->percentage = $percentage;
-        $this->tooltip = $tooltip;
-    }
+    public function __construct(
+        public string $title,
+        public string|int|float $value,
+        public string|int|float|null $percentage = null,
+        public ?string $tooltip = null,
+    ) {}
 
     /**
      * Get the view / contents that represent the component.

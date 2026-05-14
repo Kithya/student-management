@@ -16,7 +16,7 @@ test('profile information can be updated', function () {
 
     $response = Volt::test('settings.profile')
         ->set('name', 'Test User')
-        ->set('email', 'test@example.com')
+        ->set('username', 'test-user')
         ->call('updateProfileInformation');
 
     $response->assertHasNoErrors();
@@ -24,23 +24,21 @@ test('profile information can be updated', function () {
     $user->refresh();
 
     expect($user->name)->toEqual('Test User');
-    expect($user->email)->toEqual('test@example.com');
-    expect($user->email_verified_at)->toBeNull();
+    expect($user->username)->toEqual('test-user');
 });
 
-test('email verification status is unchanged when email address is unchanged', function () {
-    $user = User::factory()->create();
+test('username must be unique', function () {
+    User::factory()->create(['username' => 'taken']);
+    $user = User::factory()->create(['username' => 'available']);
 
     $this->actingAs($user);
 
     $response = Volt::test('settings.profile')
         ->set('name', 'Test User')
-        ->set('email', $user->email)
+        ->set('username', 'taken')
         ->call('updateProfileInformation');
 
-    $response->assertHasNoErrors();
-
-    expect($user->refresh()->email_verified_at)->not->toBeNull();
+    $response->assertHasErrors(['username']);
 });
 
 test('user can delete their account', function () {

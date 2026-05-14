@@ -10,29 +10,22 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 
 class AttendanceExport implements FromCollection, WithHeadings, WithMapping
 {
-    protected $year;
-
-    protected $month;
-
-    protected $grade;
-
-    public function __construct($year, $month, $grade)
-    {
-        $this->year = $year;
-        $this->month = $month;
-        $this->grade = $grade;
-    }
+    public function __construct(
+        protected int|string $year,
+        protected int|string $month,
+        protected int|string $grade,
+    ) {}
 
     /**
      * @return Collection
      */
     public function collection()
     {
-        return Attendance::whereYear('date', $this->year)
+        return Attendance::query()
+            ->with('student')
+            ->whereYear('date', $this->year)
             ->whereMonth('date', $this->month)
-            ->whereHas('student', function ($query) {
-                $query->where('grade_id', $this->grade);
-            })
+            ->where('grade_id', $this->grade)
             ->get();
     }
 
@@ -42,6 +35,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping
             $row->student->first_name.' '.$row->student->last_name,
             $row->date,
             ucfirst($row->status),
+            $row->reason,
         ];
     }
 

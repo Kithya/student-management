@@ -25,7 +25,7 @@ class Student extends Model
         return $this->belongsTo(Grade::class);
     }
 
-    public function attandances(): HasMany
+    public function attendances(): HasMany
     {
         return $this->hasMany(Attendance::class);
     }

@@ -10,20 +10,17 @@ use Masmerise\Toaster\Toaster;
 #[Layout('components.layouts.app')]
 class StudentList extends Component
 {
-    public function delete($id)
+    public function delete(int $id): void
     {
-        $student = Student::find($id);
-        $student->delete();
+        Student::query()->findOrFail($id)->delete();
 
         Toaster::success('Student deleted successfully.');
-
-        return redirect()->route('student.index');
     }
 
     public function render()
     {
         return view('livewire.teacher.students.student-list', [
-            'students' => Student::all(),
+            'students' => Student::query()->with('grade')->orderBy('first_name')->orderBy('last_name')->get(),
         ]);
     }
 }

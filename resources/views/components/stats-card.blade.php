@@ -1,7 +1,7 @@
 <div
-    class="flex flex-col p-4 md:p-5 dark:bg-neutral-800 dark:border-neutral-700 bg-gradient-to-r from-blue-200 to-blue-300 border shadow-sm rounded-xl dark:bg-gradient-to-r dark:from-neutral-800 dark:to-neutral-700">
+    class="flex min-h-32 flex-col justify-between rounded-lg border border-layer-line bg-layer p-4 shadow-2xs md:p-5">
     <div class="flex items-center gap-x-2">
-        <p class="text-xs uppercase text-gray-500 dark:text-neutral-500">
+        <p class="text-xs font-semibold uppercase text-muted-foreground-2">
             {{ $title }}
         </p>
         @if ($tooltip)
@@ -21,11 +21,11 @@
         @endif
     </div>
 
-    <div class="mt-1 flex items-center gap-x-2">
-        <h3 class="text-xl sm:text-2xl font-medium text-gray-800 dark:text-neutral-200">
+    <div class="mt-4 flex items-end gap-x-2">
+        <h3 class="text-2xl font-semibold text-foreground">
             {{ $value }}
         </h3>
-        @if ($percentage)
+        @if ($percentage !== null && $percentage !== '')
             <span class="flex items-center gap-x-1 {{ $percentage > 0 ? 'text-green-600' : 'text-red-600' }}">
                 <svg class="inline-block size-4 self-center" xmlns="http://www.w3.org/2000/svg" width="24"
                     height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"

@@ -10,31 +10,31 @@ use Livewire\Component;
 
 class DashboardWidgetOverview extends Component
 {
-    public $totalStudents;
+    public int $totalStudents = 0;
 
-    public $totalUsers;
+    public int $totalUsers = 0;
 
-    public $totalTeachers;
+    public int $totalTeachers = 0;
 
-    public $presentToday;
+    public int $presentToday = 0;
 
-    public $absentToday;
+    public int $absentToday = 0;
 
-    public $weeklyAttendanceRate;
+    public float $weeklyAttendanceRate = 0.0;
 
-    public $monthlyTrends = [];
+    public array $monthlyTrends = [];
 
-    public $attendanceToday;
+    public int $attendanceToday = 0;
 
-    public function mount()
+    public bool $showAdminStats = false;
+
+    public function mount(): void
     {
         $today = Carbon::today();
         $weekStart = Carbon::now()->startOfWeek();
         $weekEnd = Carbon::now()->endOfWeek();
-        $monthStart = Carbon::now()->startOfMonth();
-        $monthEnd = Carbon::now()->endOfMonth();
 
-        // Fetch Data
+        $this->showAdminStats = auth()->user()?->role === 'admin';
         $this->totalStudents = Student::count();
         $this->totalUsers = User::count();
         $this->totalTeachers = User::where('role', 'teacher')->count();
@@ -45,7 +45,7 @@ class DashboardWidgetOverview extends Component
         // Weekly Attendance Rate
         $totalClasses = Attendance::whereBetween('date', [$weekStart, $weekEnd])->count();
         $presentCount = Attendance::whereBetween('date', [$weekStart, $weekEnd])->where('status', 'present')->count();
-        $this->weeklyAttendanceRate = $totalClasses > 0 ? ($presentCount / $totalClasses) * 100 : 0;
+        $this->weeklyAttendanceRate = $totalClasses > 0 ? round(($presentCount / $totalClasses) * 100, 1) : 0.0;
 
         for ($i = 1; $i <= Carbon::now()->daysInMonth; $i++) {
             $date = Carbon::createFromDate(Carbon::now()->year, Carbon::now()->month, $i);

@@ -10,16 +10,13 @@ use Masmerise\Toaster\Toaster;
 #[Layout('components.layouts.app')]
 class GradeList extends Component
 {
-
-    public function delete($id)
+    public function delete(int $id): void
     {
-        $student = Grade::find($id);
-        $student->delete();
+        Grade::query()->findOrFail($id)->delete();
 
-        Toaster::success('Student deleted successfully.');
-
-        return redirect()->route('grade.index');
+        Toaster::success('Grade deleted successfully.');
     }
+
     public function render()
     {
         return view('livewire.teacher.grades.grade-list', [
