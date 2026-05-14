@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Teacher\Attendance;
 
+use App\Exports\AttendanceExport;
 use App\Models\Attendance;
 use App\Models\Grade;
 use App\Models\Student;
@@ -9,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Maatwebsite\Excel\Facades\Excel;
 use Masmerise\Toaster\Toaster;
 
 #[Layout('components.layouts.app')]
@@ -47,7 +49,6 @@ class AttendancePage extends Component
         }
     }
 
-
     public function updateAttendance(int $studentId, int $day, string $status): void
     {
         // if (! $this->isValidStatus($status)) {
@@ -77,16 +78,15 @@ class AttendancePage extends Component
         }
     }
 
-
-
-    // private function isValidStatus(string $status): bool
-    // {
-    //     return in_array($status, ['present', 'absent', 'sick', 'other'], true);
-    // }
+    public function exportToExcel()
+    {
+        return Excel::download(new AttendanceExport($this->year, $this->month, $this->grade), 'attendance.xlsx');
+    }
 
     public function render(): View
     {
         $this->fetchStudents();
+
         return view('livewire.teacher.attendance.attendance-page', [
             'daysInMonth' => $this->year && $this->month
                 ? Carbon::create((int) $this->year, (int) $this->month)->daysInMonth

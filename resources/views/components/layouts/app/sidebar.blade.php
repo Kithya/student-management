@@ -21,13 +21,15 @@
                     :current="request()->routeIs(auth()->user()->role =='teacher' ? 'teacher.dashboard' : 'admin.dashboard')"
                     wire:navigate>Dashboard</flux:navlist.item>
             </flux:navlist.group>
-            {{-- Student Management --}}
-            <flux:navlist.item icon="users" :href="route('student.index')"
-                :current="request()->routeIs('student.index')" wire:navigate>Student Management</flux:navlist.item>
+            @if (auth()->user()->role == 'admin')
+                {{-- Student Management --}}
+                <flux:navlist.item icon="users" :href="route('student.index')"
+                    :current="request()->routeIs('student.index')" wire:navigate>Student Management</flux:navlist.item>
 
-            {{-- Grade Management --}}
-            <flux:navlist.item icon="document-text" :href="route('grade.index')"
-                :current="request()->routeIs('grade.index')" wire:navigate>Grade</flux:navlist.item>
+                {{-- Grade Management --}}
+                <flux:navlist.item icon="document-text" :href="route('grade.index')"
+                    :current="request()->routeIs('grade.index')" wire:navigate>Grade</flux:navlist.item>
+            @endif
 
             {{-- Attendance Management --}}
             <flux:navlist.item icon="calendar" :href="route('attendance.index')"
