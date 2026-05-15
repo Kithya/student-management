@@ -3,6 +3,7 @@
 namespace App\Livewire\Teacher\Students;
 
 use App\Models\Student;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Masmerise\Toaster\Toaster;
@@ -17,10 +18,10 @@ class StudentList extends Component
         Toaster::success('Student deleted successfully.');
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.teacher.students.student-list', [
-            'students' => Student::query()->with('grade')->orderBy('first_name')->orderBy('last_name')->get(),
+            'students' => Student::query()->with('grade')->orderBy('id')->get(),
         ]);
     }
 }
