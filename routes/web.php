@@ -17,9 +17,9 @@ use App\Livewire\Teacher\Students\StudentList;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Volt::route('/', 'auth.login')
+    ->middleware('guest')
+    ->name('home');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'teacher'])

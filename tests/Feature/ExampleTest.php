@@ -1,7 +1,9 @@
 <?php
 
-test('returns a successful response', function () {
+test('the home page renders the login screen', function () {
     $response = $this->get('/');
 
-    $response->assertStatus(200);
+    $response
+        ->assertSuccessful()
+        ->assertSee('Log in to your account');
 });
